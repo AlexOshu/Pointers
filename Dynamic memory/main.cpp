@@ -1,18 +1,26 @@
-#include <iostream>
+#include<iostream>
 using namespace std;
+using std::cin;
+using std::cout;
+using std::endl;
 
-//#define PUSH_BACK
-#define FRONT_BACK
+#define tab "\t"
 
 void FillRand(int arr[], const int n);
 void Print(int* arr, const int n);
 
 int* push_back(int* arr, int& n, int value);
-int* front_back(int* arr, int& n, int value);
+int* push_front(int* arr, int& n, int value);
+int* insert(int* arr, int& n, int value,int index);
+int* pop_back(int* arr, int& n);
+int* pop_front(int* arr, int& n);
+int* erase(int* arr, int& n, int index);
+
 
 void main()
 {
 	setlocale(LC_ALL, "");
+
 	int n;
 	cout << "Введите размер массива: "; cin >> n;
 	int* arr = new int[n];
@@ -20,26 +28,54 @@ void main()
 	FillRand(arr, n);
 	Print(arr, n);
 
-	int value;
-	cout << "Введите добавляемое значение: "; cin >> value;
+	int value, selection, index;
+	cout << "Введите действие из предложенных: " << endl;
+	cout << "1 - добавляет значение в конец массива" << endl
+		<< "2 - добавляет значение в начало массива" << endl
+		<< "3 - добавляет значение в массив по указанному индексу" << endl
+		<< "4 - удаляет значение из конца массива" << endl
+		<< "5 - удаляет значение c начала массива" << endl
+		<< "6 - удаляет значение из массива по указанному индексу" << endl;
+	cin >> selection;
+	switch (selection)
+	{
+	case(1):
+		cout << "Введите значение для добавления: "; cin >> value;
+		arr = push_back(arr, n, value); break;
 
-	arr = push_back(arr, n, value);
-	arr = front_back(arr, n, value);
+	case(2):
+		cout << "Введите значение для добавления: "; cin >> value;
+		arr = push_front(arr, n, value); break;
 
+	case(3):
+		cout << "Введите значение для добавления: "; cin >> value;
+		cout << "Введите индекс значения для добавления в массив: "; cin >> index;
+		arr = insert(arr, n, value, index); break;
 
-	
+	case(4):
+		arr = pop_back(arr, n); break;
+
+	case(5):
+		arr = pop_front(arr, n); break;
+
+	case(6):
+		cout << "Введите индекс значения для удаления из массива: "; cin >> index;
+		arr = erase(arr, n, index); break;
+	default: cout << "Ошибка ввода" << endl; break;
+	}
 	Print(arr, n);
-
 	delete[] arr;
 }
+
+
+
 void FillRand(int arr[], const int n)
 {
 	for (int i = 0; i < n; i++)
 	{
-		// Через арифметику указателей и оператор разыменования
+		//Через арифметику указателей и оператор разыменования
 		*(arr + i) = rand() % 100;
 	}
-
 }
 void Print(int* arr, const int n)
 {
@@ -49,10 +85,10 @@ void Print(int* arr, const int n)
 	}
 	cout << endl;
 }
-#ifdef PUSH_BACK
+
 int* push_back(int* arr, int& n, int value)
 {
-	//1) Создаём буфферный массив нужного размера:
+	//1) Создаем буферный массив нужного размера:
 	int* buffer = new int[n + 1];
 
 	//2) Копируем содержимое исходного массива в буферный:
@@ -61,49 +97,91 @@ int* push_back(int* arr, int& n, int value)
 		buffer[i] = arr[i];
 	}
 
-	//3) После того как все данные чкопированы с исходного массива в буферный исходный, массив больше не нужен и его можно удалить:
+	//3) После того как все данные скопированы из исходного массива в буферный,
+	//	 исходный массив больше не нужен, и его можно удалить:
 	delete[] arr;
 
-	//4) Подменяем адрес исходного массива в указателе 'arr' адресом нового массива
+	//4) Подменяем адрес исходного массива в указателе 'arr' адресом нового массива:
 	arr = buffer;
 
-	//5) И только после этого можно написать вот так:
+	//5) И только после всего этого можно написать вот так:
 	arr[n] = value;
-	//поскольку только сейчас в массиве 'arr' появился ещё один элемент, в который можно сохранить значение.
+	//поскольку только сейчас в массиве 'arr' появился еще один элемент, 
+	//в который можно сохранить значение.
 
-	//6) После того как мы добавили в массив элемент, количество элементов массива увеличивается
+	//6) После того как мы добавили в массив элемент, количество элементов массива увеличивается на 1
 	n++;
-
-	// 7) Misson complete - Элемент добавлен!
+	//7) Mission complete - Элемент добавлен!
 	return arr;
 }
-#endif // PUSH_BACK
-#ifdef FRONT_BACK
-int* push_back(int* arr, int& n, int value)
+int* push_front(int* arr, int& n, int value)
 {
-	//1) Создаём буфферный массив нужного размера:
 	int* buffer = new int[n + 1];
-
-	//2) Копируем содержимое исходного массива в буферный:
-	for (int i = 0; i < n; i++)
+	for (int i = 0; i <= n; i++)
+	{
+		(i == 0 ? buffer[i] = value : buffer[i] = arr[i - 1]);
+	}
+	delete[]arr;
+	arr = buffer;
+	n++;
+	return arr;
+}
+int* insert(int* arr, int& n, int value, int index)
+{
+	int* buffer = new int[n + 1];
+	for (int i = 0; i <= n; i++)
+	{
+		(i <= (index - 1) ? (i == (index - 1) ? buffer[i] = value : buffer[i] = arr[i]) : buffer[i] = arr[i - 1]);
+	}
+	delete[]arr;
+	arr = buffer;
+	n++;
+	return arr;
+}
+int* pop_back(int* arr, int& n)
+{
+	int* buffer = new int[n - 1];
+	for (int i = 0; i < n - 1; i++)
 	{
 		buffer[i] = arr[i];
 	}
-
-	//3) После того как все данные чкопированы с исходного массива в буферный исходный, массив больше не нужен и его можно удалить:
 	delete[] arr;
-
-	//4) Подменяем адрес исходного массива в указателе 'arr' адресом нового массива
 	arr = buffer;
-
-	//5) И только после этого можно написать вот так:
-	arr[n] = value;
-	//поскольку только сейчас в массиве 'arr' появился ещё один элемент, в который можно сохранить значение.
-
-	//6) После того как мы добавили в массив элемент, количество элементов массива увеличивается
 	n--;
-
-	// 7) Misson complete - Элемент добавлен!
 	return arr;
 }
-#endif // FRONT_BACK
+int* pop_front(int* arr, int& n)
+{
+	int* buffer = new int[n - 1];
+	for (int i = 0; i < n - 1; i++)
+	{
+		buffer[i] = arr[i+1];
+	}
+	delete[] arr;
+	arr = buffer;
+	n--;
+	return arr;
+}
+int* erase(int* arr, int& n, int index)
+{
+	int* buffer = new int[n - 1];
+	for (int i = 0; i < n - 1; i++)
+	{
+		(i <= (index - 1) ? (i == (index - 1) ? (buffer[i] = arr[i+1]) : (buffer[i] = arr[i])) : buffer[i] = arr[i + 1]);
+	}
+	delete[] arr;
+	arr = buffer;
+	n--;
+	return arr;
+}
+
+
+
+/*
+-------------------------------------------------
+Debug Assertion Failed:
+1. Удаление из статической памяти
+2. Повторное удаление динамической памяти, а именно, 
+   когда оператору delete[] передали два раза один и тот же адрес.
+--------
+*/
